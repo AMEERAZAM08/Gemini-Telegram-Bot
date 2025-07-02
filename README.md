@@ -10,6 +10,7 @@ pinned: false
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
 
 
+<a href="https://web.telegram.org/k/#@ameer1122334455_bot"><img src="https://img.shields.io/badge/Chat-on%20Telegram-2CA5E0.svg?logo=telegram&style=for-the-badge" alt="Chat on Telegram"/></a>
 
 
 # 🤖 Agentic Gemini Bot with Image Analysis
