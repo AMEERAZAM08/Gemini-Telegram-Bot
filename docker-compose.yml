@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  telegram-bot:
+    build: .
+    container_name: agentic-gemini-bot
+    restart: unless-stopped
+    
+    # Environment variables from .env file and secrets
+    environment:
+      # Required secrets (provide via .env file or Docker secrets)
+      - BOT_TOKEN=${BOT_TOKEN}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${BOT_TOKEN}  # Alias for compatibility
+      
+      # Optional configuration (with defaults in Dockerfile)
+      - MAX_CONCURRENT_USERS=${MAX_CONCURRENT_USERS:-100}
+      - MAX_CONVERSATIONS_PER_USER=${MAX_CONVERSATIONS_PER_USER:-20}
+      - USER_SESSION_TIMEOUT_MINUTES=${USER_SESSION_TIMEOUT_MINUTES:-60}
+      - MAX_MEMORY_USAGE_MB=${MAX_MEMORY_USAGE_MB:-500}
+      - FLASK_HOST=${FLASK_HOST:-0.0.0.0}
+      - FLASK_PORT=${FLASK_PORT:-5001}
+    
+    # Use Docker secrets (uncomment for production with Docker Swarm)
+    # secrets:
+    #   bot_token:
+    #     external: true
+    #   gemini_api_key:
+    #     external: true
+    
+    # Expose Flask API port
+    ports:
+      - "${FLASK_PORT:-5001}:5001"
+    
+    # No volume mounts needed - using memory storage
+    # volumes:
+    #   - ./data/responses:/app/responses  # Not needed anymore
+    #   - ./data/logs:/app/logs           # Optional for logging
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Resource limits for production
+    deploy:
+      resources:
+        limits:
+          memory: ${MAX_MEMORY_LIMIT:-1G}
+          cpus: '${MAX_CPU_LIMIT:-0.5}'
+        reservations:
+          memory: ${MIN_MEMORY_LIMIT:-256M}
+          cpus: '${MIN_CPU_LIMIT:-0.1}'
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Docker secrets configuration (for production use with Docker Swarm)
+# secrets:
+#   bot_token:
+#     external: true
+#   gemini_api_key:
+#     external: true 
